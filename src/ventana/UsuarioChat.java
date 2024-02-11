@@ -1,29 +1,28 @@
 package ventana;
 
-import javax.swing.*;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
 
 public class UsuarioChat {
     public static void main(String[] args) {
 
         try {
+            MulticastSocket socket=new MulticastSocket();
             InterfazBasica pantalla = new InterfazBasica();
-            String ipServer = "localhost";
-            int puerto = 33333;
-            Socket clienteSocket = new Socket(ipServer, puerto);
+            while(true) {
 
-            PrintWriter salidaServer = new PrintWriter(clienteSocket.getOutputStream(), true);
-            BufferedReader entradaServer = new BufferedReader(new InputStreamReader(clienteSocket.getInputStream()));
-
-            String msgNombre = entradaServer.readLine();
-            //String nombre = JOptionPane.showInputDialog(null, msgNombre);
-
-            //salidaServer.println(nombre);
-
+                String wsMensaje = pantalla.getMensaje();
+                byte[] mensaje = wsMensaje.getBytes();
+                int puerto = 33333;
+                DatagramPacket dp = new DatagramPacket(mensaje, mensaje.length, InetAddress.getByName("225.0.0.1"), puerto);
+                socket.send(dp);
+                if(wsMensaje.equalsIgnoreCase("fin")){
+                    socket.close();
+                    break;
+                }
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

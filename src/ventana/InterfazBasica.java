@@ -10,10 +10,11 @@ public class InterfazBasica extends JFrame {
     private JTextArea txtUsuariosConectados;
     private JTextArea txtMensajesEnviados;
     private JTextField txtMensaje;
+    private String nombreUsuario;
 
     public InterfazBasica() {
         // Ventana inicial para obtener el nombre del usuario
-        String nombreUsuario = JOptionPane.showInputDialog(null, "Por favor, ingresa tu nombre:");
+        nombreUsuario = JOptionPane.showInputDialog(null, "Por favor, ingresa tu nombre:");
 
         if (nombreUsuario != null && !nombreUsuario.isEmpty()) {
             // Configuración de la ventana principal
@@ -69,6 +70,14 @@ public class InterfazBasica extends JFrame {
             JOptionPane.showMessageDialog(null, "No ingresaste un nombre. La aplicación se cerrará.", "Error", JOptionPane.ERROR_MESSAGE);
             System.exit(0);
         }
+    }
+
+    public String getNombreUsuario(){
+        return this.nombreUsuario;
+    }
+
+    public String getMensaje(){
+        return this.txtMensaje.getText();
     }
 
     private void enviarMensaje() {
