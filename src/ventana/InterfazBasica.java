@@ -18,7 +18,6 @@ public class InterfazBasica extends JFrame {
 
         if (nombreUsuario != null && !nombreUsuario.isEmpty()) {
             // Configuración de la ventana principal
-            setTitle("Chat - " + nombreUsuario);
             setSize(500, 400);
             setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             setLocationRelativeTo(null);
@@ -26,6 +25,8 @@ public class InterfazBasica extends JFrame {
             // Crear componentes
             txtUsuariosConectados = new JTextArea();
             txtUsuariosConectados.setEditable(false);
+            String usuarios = txtUsuariosConectados.getText();
+            txtUsuariosConectados.setText(usuarios+nombreUsuario);//pongo el nombre del usuario conectado en la lista de usuarios en el chat
 
             JScrollPane scrollPaneSuperior = new JScrollPane(txtUsuariosConectados);
 

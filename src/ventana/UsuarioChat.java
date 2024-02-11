@@ -1,9 +1,11 @@
 package ventana;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.util.Scanner;
 
 public class UsuarioChat {
     public static void main(String[] args) {
@@ -11,9 +13,11 @@ public class UsuarioChat {
         try {
             MulticastSocket socket=new MulticastSocket();
             InterfazBasica pantalla = new InterfazBasica();
-            while(true) {
-
+            PrintWriter pw = new PrintWriter(System.out);
+            Scanner tcd = new Scanner(System.in);
+            while(true){
                 String wsMensaje = pantalla.getMensaje();
+                pw.println(wsMensaje);
                 byte[] mensaje = wsMensaje.getBytes();
                 int puerto = 33333;
                 DatagramPacket dp = new DatagramPacket(mensaje, mensaje.length, InetAddress.getByName("225.0.0.1"), puerto);
