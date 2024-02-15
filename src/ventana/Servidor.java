@@ -1,34 +1,75 @@
 package ventana;
-
-import java.io.IOException;
+import java.io.*;
 import java.net.*;
+import java.util.*;
+import java.util.concurrent.*;
 
 public class Servidor {
+    private ServerSocket serverSocket;
+    private ExecutorService executor;
+    private List<PrintWriter> clientes;
 
-    public static void main(String[] args) {
+    public Servidor() {
+        clientes = new ArrayList<>();
+        executor = Executors.newCachedThreadPool();
+
         try {
-            int puerto = 33333;
-            String ip = "225.0.0.1";
-            MulticastSocket multicastSocket = new MulticastSocket(puerto);
-            InetAddress host = InetAddress.getByName(ip);
-            multicastSocket.joinGroup(host);
-            while(true) {
-                byte[] buffer=new byte[256];
-                DatagramPacket entrada=new DatagramPacket(buffer, buffer.length);
-                multicastSocket.receive(entrada);
-                String texto = new String(entrada.getData()).trim();
-                if(texto.equalsIgnoreCase("fin")) {
-                    System.out.println("Conexion cerrada");
-                    multicastSocket.leaveGroup(host);
-                    multicastSocket.close();
-                    break;
-                }else{
-                    System.out.println("recibido:" + texto);
+            serverSocket = new ServerSocket(12345);
+
+            while (true) {
+                Socket socket = serverSocket.accept();
+                PrintWriter salida = new PrintWriter(socket.getOutputStream(), true);
+                clientes.add(salida);
+
+                // Hilo para manejar la comunicación con el cliente
+                executor.execute(new ManejadorCliente(socket));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            executor.shutdown();
+        }
+    }
+
+    private void enviarMensaje(String mensaje) {
+        for (PrintWriter cliente : clientes) {
+            cliente.println(mensaje);
+        }
+    }
+
+    private class ManejadorCliente implements Runnable {
+        private Socket socket;
+        private BufferedReader entrada;
+
+        public ManejadorCliente(Socket socket) {
+            this.socket = socket;
+
+            try {
+                entrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void run() {
+            try {
+                String mensaje;
+                while ((mensaje = entrada.readLine()) != null) {
+                    enviarMensaje(mensaje);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
+    }
+
+    public static void main(String[] args) {
+        new Servidor();
     }
 }

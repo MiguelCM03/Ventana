@@ -1,34 +1,83 @@
 package ventana;
+import javax.swing.*;
+import java.awt.event.*;
+import java.io.*;
+import java.net.*;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
-import java.util.Scanner;
+public class UsuarioChat extends JFrame {
+    private Socket cliente;
+    private BufferedReader entrada;
+    private PrintWriter salida;
+    private JTextField txtMensaje;
+    private JTextArea txtConversacion;
+    private JTextField txtNombre;
 
-public class UsuarioChat {
-    public static void main(String[] args) {
+    public UsuarioChat() {
+        // Solicitar el nombre al principio de la ejecución
+        String nombre = JOptionPane.showInputDialog("Ingrese su nombre:");
+        setTitle("Chat - " + nombre);
 
+        // Configuración de la interfaz gráfica del cliente
+        txtNombre = new JTextField(nombre);
+        txtNombre.setEditable(false);
+
+        txtMensaje = new JTextField();
+        txtMensaje.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                enviarMensaje(nombre + ": " + e.getActionCommand());
+                txtMensaje.setText("");
+            }
+        });
+
+        txtConversacion = new JTextArea();
+        txtConversacion.setEditable(false);
+
+        add(txtNombre, "North");
+        add(txtMensaje, "South");
+        add(new JScrollPane(txtConversacion), "Center");
+
+        setSize(300, 200);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setVisible(true);
+
+        // Conexión al servidor
         try {
-            MulticastSocket socket=new MulticastSocket();
-            InterfazBasica pantalla = new InterfazBasica();
-            PrintWriter pw = new PrintWriter(System.out);
-            Scanner tcd = new Scanner(System.in);
-            while(true){
-                String wsMensaje = pantalla.getMensaje();
-                pw.println(wsMensaje);
-                byte[] mensaje = wsMensaje.getBytes();
-                int puerto = 33333;
-                DatagramPacket dp = new DatagramPacket(mensaje, mensaje.length, InetAddress.getByName("225.0.0.1"), puerto);
-                socket.send(dp);
-                if(wsMensaje.equalsIgnoreCase("fin")){
-                    socket.close();
-                    break;
+            cliente = new Socket("localhost", 12345);
+            entrada = new BufferedReader(new InputStreamReader(cliente.getInputStream()));
+            salida = new PrintWriter(cliente.getOutputStream(), true);
+
+            // Hilo para recibir mensajes del servidor
+            new Thread(new Runnable() {
+                public void run() {
+                    recibirMensajes();
                 }
+            }).start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void enviarMensaje(String mensaje) {
+        salida.println(mensaje);
+    }
+
+    private void recibirMensajes() {
+        try {
+            String mensaje;
+            while ((mensaje = entrada.readLine()) != null) {
+                txtConversacion.append(mensaje + "\n");
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                new UsuarioChat();
+            }
+        });
     }
 }
