@@ -43,7 +43,7 @@ public class UsuarioChat extends JFrame {
 
         // Conexión al servidor
         try {
-            cliente = new Socket("localhost", 12345);
+            cliente = new Socket("localhost", 33333);
             entrada = new BufferedReader(new InputStreamReader(cliente.getInputStream()));
             salida = new PrintWriter(cliente.getOutputStream(), true);
 
