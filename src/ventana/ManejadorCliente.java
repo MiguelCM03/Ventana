@@ -6,17 +6,17 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 
 public class ManejadorCliente implements Runnable {
-    private Socket socket;
-    private BufferedReader entrada;
-    private Servidor server;
-    private String mensajeError;
+    private Socket psSocket;
+    private BufferedReader pbrEntrada;
+    private Servidor psServer;
+    private String psMensajeError;
 
     public ManejadorCliente(Socket socket, Servidor server) {
-        this.socket = socket;
-        this.server = server;
-        mensajeError = "error";
+        this.psSocket = socket;
+        this.psServer = server;
+        psMensajeError = "error";
         try {
-            entrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            pbrEntrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -26,20 +26,20 @@ public class ManejadorCliente implements Runnable {
         try {
             //Contador de mensajes recibidos, el primero será el nombre, por lo que tenog que controlar que no haya nadie con ese nombre ya registrado en el chat
             int contadorMensajes = 0;
-            int posicionUsuario = server.getNombres().size()-1;
+            int posicionUsuario = psServer.getPlsNombres().size()-1;
             String nombreUsuarioNuevo;
             String mensaje;
-            while ((mensaje = entrada.readLine()) != null) {
+            while ((mensaje = pbrEntrada.readLine()) != null) {
                 if(contadorMensajes == 0){//El primer mensaje es el nombre, comprueba si existe o no, y permite que el usuario se conecte o no
                     nombreUsuarioNuevo = mensaje;
-                    for (String s : server.getNombres()){
+                    for (String s : psServer.getPlsNombres()){
                         if(nombreUsuarioNuevo.equalsIgnoreCase(s)){
-                            server.enviarMensajePosicion(posicionUsuario, mensajeError);
+                            psServer.enviarMensajePosicion(posicionUsuario, psMensajeError);
                         }
                     }
                 }else{//En el resto de mensajes los añade a la conversacion y los envía.
-                    server.conversacion += mensaje+"\n";
-                    server.enviarMensaje(mensaje);
+                    psServer.conversacion += mensaje+"\n";
+                    psServer.enviarMensaje(mensaje);
                 }
                 contadorMensajes++;
             }
@@ -47,7 +47,7 @@ public class ManejadorCliente implements Runnable {
             e.printStackTrace();
         } finally {
             try {
-                socket.close();
+                psSocket.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }

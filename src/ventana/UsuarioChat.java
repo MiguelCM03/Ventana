@@ -6,9 +6,9 @@ import java.io.*;
 import java.net.*;
 
 public class UsuarioChat extends JFrame {
-    private Socket cliente;
-    private BufferedReader entrada;
-    private PrintWriter salida;
+    private Socket psCliente;
+    private BufferedReader pbrEntrada;
+    private PrintWriter ppwSalida;
     private JTextField txtMensaje;
     private JTextArea txtConversacion;
     private JTextField txtNombre;
@@ -46,10 +46,10 @@ public class UsuarioChat extends JFrame {
 
         // Conexión al servidor
         try {
-            cliente = new Socket("localhost", 33333);
-            entrada = new BufferedReader(new InputStreamReader(cliente.getInputStream()));
-            salida = new PrintWriter(cliente.getOutputStream(), true);
-            salida.println(psNombre);
+            psCliente = new Socket("localhost", 33333);
+            pbrEntrada = new BufferedReader(new InputStreamReader(psCliente.getInputStream()));
+            ppwSalida = new PrintWriter(psCliente.getOutputStream(), true);
+            ppwSalida.println(psNombre);
 
             // Hilo para recibir mensajes del servidor
             new Thread(new Runnable() {
@@ -63,13 +63,13 @@ public class UsuarioChat extends JFrame {
     }
 
     private void enviarMensaje(String mensaje) {
-        salida.println(mensaje);
+        ppwSalida.println(mensaje);
     }
 
     private void recibirMensajes() {
         try {
             String mensaje;
-            while ((mensaje = entrada.readLine()) != null) {
+            while ((mensaje = pbrEntrada.readLine()) != null) {
                 if(mensaje.contains("error")){
                     txtConversacion.setText("No se puede conectar, ya hay alguien con ese nombre. Cerrando conexión...");
                     Thread.sleep(2000);

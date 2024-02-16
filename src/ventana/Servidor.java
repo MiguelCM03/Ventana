@@ -6,51 +6,51 @@ import java.util.*;
 import java.util.concurrent.*;
 
 public class Servidor {
-    private int contador;
-    private ServerSocket serverSocket;
-    private ExecutorService executor;
-    private List<PrintWriter> clientes;
-    private ArrayList<String> nombres;
+    private int piContador;
+    private ServerSocket pssServerSocket;
+    private ExecutorService pesExecutor;
+    private List<PrintWriter> ploClientes;
+    private ArrayList<String> plsNombres;
     public String conversacion;
 
     public Servidor() {
-        contador = 0;
-        clientes = new ArrayList<>();
-        nombres = new ArrayList<>();
-        executor = Executors.newCachedThreadPool();
+        piContador = 0;
+        ploClientes = new ArrayList<>();
+        plsNombres = new ArrayList<>();
+        pesExecutor = Executors.newCachedThreadPool();
 
         try {
-            serverSocket = new ServerSocket(33333);
+            pssServerSocket = new ServerSocket(33333);
 
             while (true) {
-                Socket socket = serverSocket.accept();
+                Socket socket = pssServerSocket.accept();
                 PrintWriter salida = new PrintWriter(socket.getOutputStream(), true);
-                clientes.add(salida);
+                ploClientes.add(salida);
 
                 // Hilo para manejar la comunicación con el cliente
-                executor.execute(new ManejadorCliente(socket, this));
+                pesExecutor.execute(new ManejadorCliente(socket, this));
                 //Añado el mensaje a la conversacion y me guardo la conversacion entera, para que cuanodo un usuario nuevo se conecte, la vea entera, incluso los mensajes anteriores a su conexión.
-                if(conversacion!=null) { enviarMensajePosicion(contador, conversacion); }
-                contador++;
+                if(conversacion!=null) { enviarMensajePosicion(piContador, conversacion); }
+                piContador++;
             }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            executor.shutdown();
+            pesExecutor.shutdown();
         }
     }
 
     public void enviarMensaje(String mensaje) {
-        for (PrintWriter cliente : clientes) {
+        for (PrintWriter cliente : ploClientes) {
             cliente.println(mensaje);
         }
     }
-    public ArrayList<String> getNombres(){
-        return this.nombres;
+    public ArrayList<String> getPlsNombres(){
+        return this.plsNombres;
     }
 
     public void enviarMensajePosicion(int posicion, String mensaje) {
-        clientes.get(posicion).println(mensaje);
+        ploClientes.get(posicion).println(mensaje);
     }
 
 //    private class ManejadorCliente implements Runnable {
