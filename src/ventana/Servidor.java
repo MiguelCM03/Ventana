@@ -1,4 +1,5 @@
 package ventana;
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -9,11 +10,13 @@ public class Servidor {
     private ServerSocket serverSocket;
     private ExecutorService executor;
     private List<PrintWriter> clientes;
+    private ArrayList<String> nombres;
     public String conversacion;
 
     public Servidor() {
         contador = 0;
         clientes = new ArrayList<>();
+        nombres = new ArrayList<>();
         executor = Executors.newCachedThreadPool();
 
         try {
@@ -26,7 +29,8 @@ public class Servidor {
 
                 // Hilo para manejar la comunicación con el cliente
                 executor.execute(new ManejadorCliente(socket, this));
-                if(conversacion!=null) { enviarMensaje(contador, conversacion); }
+                //Añado el mensaje a la conversacion y me guardo la conversacion entera, para que cuanodo un usuario nuevo se conecte, la vea entera, incluso los mensajes anteriores a su conexión.
+                if(conversacion!=null) { enviarMensajePosicion(contador, conversacion); }
                 contador++;
             }
         } catch (IOException e) {
@@ -41,11 +45,12 @@ public class Servidor {
             cliente.println(mensaje);
         }
     }
+    public ArrayList<String> getNombres(){
+        return this.nombres;
+    }
 
-    private void enviarMensaje(int posicion, String mensaje) {
-
+    public void enviarMensajePosicion(int posicion, String mensaje) {
         clientes.get(posicion).println(mensaje);
-
     }
 
 //    private class ManejadorCliente implements Runnable {

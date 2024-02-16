@@ -1,4 +1,5 @@
 package ventana;
+
 import javax.swing.*;
 import java.awt.event.*;
 import java.io.*;
@@ -11,20 +12,22 @@ public class UsuarioChat extends JFrame {
     private JTextField txtMensaje;
     private JTextArea txtConversacion;
     private JTextField txtNombre;
+    private String psNombre;
 
     public UsuarioChat() {
         // Solicitar el nombre al principio de la ejecución
-        String nombre = JOptionPane.showInputDialog("Ingrese su nombre:");
-        setTitle("Chat - " + nombre);
+        String wsNombre = JOptionPane.showInputDialog("Ingrese su nombre:");
+        psNombre = wsNombre;
+        setTitle("Chat - " + wsNombre);
 
         // Configuración de la interfaz gráfica del cliente
-        txtNombre = new JTextField(nombre);
+        txtNombre = new JTextField(wsNombre);
         txtNombre.setEditable(false);
 
         txtMensaje = new JTextField();
         txtMensaje.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                enviarMensaje(nombre + ": " + e.getActionCommand());
+                enviarMensaje(wsNombre + ": " + e.getActionCommand());
                 txtMensaje.setText("");
             }
         });
@@ -46,6 +49,7 @@ public class UsuarioChat extends JFrame {
             cliente = new Socket("localhost", 33333);
             entrada = new BufferedReader(new InputStreamReader(cliente.getInputStream()));
             salida = new PrintWriter(cliente.getOutputStream(), true);
+            salida.println(psNombre);
 
             // Hilo para recibir mensajes del servidor
             new Thread(new Runnable() {
@@ -66,9 +70,15 @@ public class UsuarioChat extends JFrame {
         try {
             String mensaje;
             while ((mensaje = entrada.readLine()) != null) {
-                txtConversacion.append(mensaje + "\n");
+                if(mensaje.contains("error")){
+                    txtConversacion.setText("No se puede conectar, ya hay alguien con ese nombre. Cerrando conexión...");
+                    Thread.sleep(2000);
+                    System.exit(1);
+                }else{
+                    txtConversacion.append(mensaje + "\n");
+                }
             }
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -81,3 +91,4 @@ public class UsuarioChat extends JFrame {
         });
     }
 }
+
