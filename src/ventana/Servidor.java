@@ -53,39 +53,6 @@ public class Servidor {
         ploClientes.get(posicion).println(mensaje);
     }
 
-//    private class ManejadorCliente implements Runnable {
-//        private Socket socket;
-//        private BufferedReader entrada;
-//
-//        public ManejadorCliente(Socket socket) {
-//            this.socket = socket;
-//
-//            try {
-//                entrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//
-//        public void run() {
-//            try {
-//                String mensaje;
-//                while ((mensaje = entrada.readLine()) != null) {
-//                    conversacion += mensaje+"\n";
-//                    enviarMensaje(mensaje);
-//                }
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            } finally {
-//                try {
-//                    socket.close();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
-//    }
-
     public static void main(String[] args) {
         new Servidor();
     }

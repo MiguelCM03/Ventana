@@ -24,33 +24,49 @@ public class ManejadorCliente implements Runnable {
 
     public void run() {
         try {
-            //Contador de mensajes recibidos, el primero será el nombre, por lo que tenog que controlar que no haya nadie con ese nombre ya registrado en el chat
-            int contadorMensajes = 0;
-            int posicionUsuario = psServer.getPlsNombres().size()-1;
-            String nombreUsuarioNuevo;
+            //Contador de mensajes recibidos, el primero será el nombre, por lo que tengo que controlar que no haya nadie con ese nombre ya registrado en el chat
+//            int posicionUsuario = psServer.getPlsNombres().size()-1;
+//            String nombreUsuarioNuevo;
+            boolean mensajeEsNombre = true;
             String mensaje;
+            System.out.println("Usuario conectado");
             while ((mensaje = pbrEntrada.readLine()) != null) {
-                if(contadorMensajes == 0){//El primer mensaje es el nombre, comprueba si existe o no, y permite que el usuario se conecte o no
-                    nombreUsuarioNuevo = mensaje;
-                    for (String s : psServer.getPlsNombres()){
-                        if(nombreUsuarioNuevo.equalsIgnoreCase(s)){
-                            psServer.enviarMensajePosicion(posicionUsuario, psMensajeError);
+//                if(mensajeEsNombre){
+//                    mensajeEsNombre = false;
+                    boolean encontrado = false;
+                    int posicionNombre = 0;
+                    for (int i = 0; i<psServer.getPlsNombres().size(); i++){
+                        if(psServer.getPlsNombres().get(i).contains(mensaje)){
+                            encontrado = true;
+                            posicionNombre = i;
                         }
                     }
-                }else{//En el resto de mensajes los añade a la conversacion y los envía.
-                    psServer.conversacion += mensaje+"\n";
-                    psServer.enviarMensaje(mensaje);
-                }
-                contadorMensajes++;
+                    if(encontrado){
+                        psServer.enviarMensajePosicion(posicionNombre, psMensajeError);
+                    }else {
+                        if(!mensajeEsNombre) {
+                            psServer.conversacion += mensaje + "\n";
+                            if(psServer.conversacion.startsWith("null")){//si el string conversacion empieza con "null", se lo quito.
+                                String nuevaConversacion = "";
+                                for (int i = 4; i < psServer.conversacion.length(); i++){
+                                    //quito el null del principio
+                                    nuevaConversacion += psServer.conversacion.charAt(i);
+                                }
+                                psServer.conversacion = nuevaConversacion;
+                            }
+                            psServer.enviarMensaje(mensaje);
+                        }
+                    }
+                    mensajeEsNombre = false;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+                e.printStackTrace();
         } finally {
             try {
                 psSocket.close();
             } catch (IOException e) {
                 e.printStackTrace();
-            }
+           }
         }
     }
 }
