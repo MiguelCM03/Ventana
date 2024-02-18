@@ -70,10 +70,10 @@ public class UsuarioChat extends JFrame {
         try {
             String mensaje;
             while ((mensaje = pbrEntrada.readLine()) != null) {
-                if(mensaje.contains("error")){
+                if(mensaje.equalsIgnoreCase("error")){//si recibo un mensaje de error no permito la conexión del usuario
                     txtConversacion.setText("No se puede conectar, ya hay alguien con ese nombre. Cerrando conexión...");
-                    Thread.sleep(2000);
-                    System.exit(1);
+                    Thread.sleep(2000);//le doy dos segundos para que le de tiempo a leer el mensaje de error
+                    System.exit(1);//interrumpo la conexión
                 }else{
                     txtConversacion.append(mensaje + "\n");
                 }

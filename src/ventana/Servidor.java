@@ -30,7 +30,7 @@ public class Servidor {
                 // Hilo para manejar la comunicación con el cliente
                 pesExecutor.execute(new ManejadorCliente(socket, this));
                 //Añado el mensaje a la conversacion y me guardo la conversacion entera, para que cuanodo un usuario nuevo se conecte, la vea entera, incluso los mensajes anteriores a su conexión.
-                if(conversacion!=null) { enviarMensajePosicion(piContador, conversacion); }
+                if(conversacion != null) { enviarMensajePosicion(piContador, conversacion); }
                 piContador++;
             }
         } catch (IOException e) {
