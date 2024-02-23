@@ -8,7 +8,6 @@ import java.util.concurrent.*;
 public class Servidor {
     private int piContador;
     private ServerSocket pssServerSocket;
-    private ExecutorService pesExecutor;
     private List<PrintWriter> ploClientes;
     private ArrayList<String> plsNombres;
     public String conversacion;
@@ -17,7 +16,6 @@ public class Servidor {
         piContador = 0;
         ploClientes = new ArrayList<>();
         plsNombres = new ArrayList<>();
-        pesExecutor = Executors.newCachedThreadPool();
 
         try {
             pssServerSocket = new ServerSocket(33333);
@@ -28,15 +26,16 @@ public class Servidor {
                 ploClientes.add(salida);
 
                 // Hilo para manejar la comunicación con el cliente
-                pesExecutor.execute(new ManejadorCliente(socket, this));
+                Thread hilo = new Thread(new ManejadorCliente(socket, this));
+                hilo.start();
+
+
                 //Añado el mensaje a la conversacion y me guardo la conversacion entera, para que cuanodo un usuario nuevo se conecte, la vea entera, incluso los mensajes anteriores a su conexión.
                 if(conversacion != null) { enviarMensajePosicion(piContador, conversacion); }
                 piContador++;
             }
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            pesExecutor.shutdown();
         }
     }
 
